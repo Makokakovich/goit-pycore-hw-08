@@ -38,26 +38,26 @@ class Record:
         self.phones = []
         self.birthday = None
 
-    def add_phone(self, phone: str):
+    def add_phone(self, phone: str) -> None:
         self.phones.append(Phone(phone))
 
-    def remove_phone(self, phone: str):
+    def remove_phone(self, phone: str) -> None:
         self.phones = [p for p in self.phones if p.value != phone]
 
-    def edit_phone(self, old_phone: str, new_phone: str):
+    def edit_phone(self, old_phone: str, new_phone: str) -> None:
         for p in self.phones:
             if p.value == old_phone:
                 p.value = Phone(new_phone).value
                 return
         raise ValueError("Phone not found.")
 
-    def find_phone(self, phone: str):
+    def find_phone(self, phone: str) -> "Phone | None":
         for p in self.phones:
             if p.value == phone:
                 return p
         return None
 
-    def add_birthday(self, birthday: str):
+    def add_birthday(self, birthday: str) -> None:
         self.birthday = Birthday(birthday)
 
     def __str__(self) -> str:
@@ -67,13 +67,13 @@ class Record:
 
 
 class AddressBook(UserDict):
-    def add_record(self, record: Record):
+    def add_record(self, record: Record) -> None:
         self.data[record.name.value] = record
 
-    def find(self, name: str):
+    def find(self, name: str) -> "Record | None":
         return self.data.get(name)
 
-    def delete(self, name: str):
+    def delete(self, name: str) -> None:
         if name in self.data:
             del self.data[name]
 
@@ -85,9 +85,15 @@ class AddressBook(UserDict):
             if not record.birthday:
                 continue
             bd = record.birthday.value
-            bd_this_year = bd.replace(year=today.year)
+            try:
+                bd_this_year = bd.replace(year=today.year)
+            except ValueError:
+                bd_this_year = bd.replace(year=today.year, day=28)
             if bd_this_year < today:
-                bd_this_year = bd.replace(year=today.year + 1)
+                try:
+                    bd_this_year = bd.replace(year=today.year + 1)
+                except ValueError:
+                    bd_this_year = bd.replace(year=today.year + 1, day=28)
             delta = (bd_this_year - today).days
             if 0 <= delta <= 7:
                 congrat_date = bd_this_year
